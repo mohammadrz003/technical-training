@@ -24,6 +24,34 @@
                             <field name="selling_price" />
                         </group>
                     </group>
+                    <notebook>
+                        <page string="Description">
+                            <group>
+                                <field name="description"/>
+                            </group>
+                            <group>
+                                <field name="bedrooms"/>
+                            </group>
+                            <group>
+                                <field name="living_area"/>
+                            </group>
+                            <group>
+                                <field name="facades"/>
+                            </group>
+                            <group>
+                                <field name="garage"/>
+                            </group>
+                            <group>
+                                <field name="garden"/>
+                            </group>
+                            <group>
+                                <field name="garden_area"/>
+                            </group>
+                            <group>
+                                <field name="garden_orientation"/>
+                            </group>
+                        </page>
+                    </notebook>
                 </sheet>
             </form>
         </field>
@@ -45,6 +73,28 @@
             </tree>
         </field>
     </record>
+
+
+    <!-- search view -->
+    <record id="estate_property_view_search" model="ir.ui.view">
+        <field name="name">estate.property.search</field>
+        <field name="model">estate.property</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="postcode"/>
+                <field name="expected_price"/>
+                <field name="bedrooms"/>
+                <field name="living_area"/>
+                <field name="facades"/>
+                <filter string="Available" name="available" domain="['|',('state', '=', 'New'),('state', '=', 'Offer_Received')]"/>
+                <group expand="1" string="Group By">
+                    <filter string="Postcode" name="groupby_postcode" context="{'group_by':'postcode'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
 
     <!-- action menu -->
     <record id="estate_property_action" model="ir.actions.act_window">

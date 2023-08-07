@@ -8,6 +8,11 @@
         "views/estate_property_views.xml",
         "views/estate_menus.xml",
     ],
+    "assets": {
+        "web.assets_backend": [
+            "web/static/src/css/estate_form.css",
+        ],
+    },
     "installable": True,
     "license": "LGPL-3",
 }
