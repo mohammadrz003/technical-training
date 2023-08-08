@@ -1,3 +1,6 @@
-.form-controller {
-    margin-bottom: 2rem;
+.form-title {
+    margin-bottom: 0.8rem;
+}
+.form-tags {
+    margin-bottom: 1.5rem !important;
 }
