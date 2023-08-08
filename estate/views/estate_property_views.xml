@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <form string="Estate Property">
                 <sheet>
-                    <h1 class="estate_title">
+                    <h1 class="form-controller">
                         <field name="name" />
                     </h1>
                     <group>

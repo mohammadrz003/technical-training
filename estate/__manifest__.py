@@ -10,7 +10,7 @@
     ],
     "assets": {
         "web.assets_backend": [
-            "web/static/src/css/estate_form.css",
+            "estate/web/static/src/css/estate_form.css",
         ],
     },
     "installable": True,
