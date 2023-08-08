@@ -2,13 +2,14 @@ from datetime import datetime
 
 from dateutil.relativedelta import relativedelta
 
-from odoo import fields, models
+from odoo import api, fields, models
 
 
 class EstateProperty(models.Model):
     _name = "estate.property"
     _description = "The properties for an estate"
 
+    # Basic
     name = fields.Char("Title", required=True)
     description = fields.Text()
     postcode = fields.Char()
@@ -47,12 +48,27 @@ class EstateProperty(models.Model):
         default="New",
     )
     active = fields.Boolean(default=False)
-    property_type_id = fields.Many2one(
-        "estate.property.type", string="Property Type"
-    )  # a many2one relation withh the "estate.property.type" model
+
+    # Relational
+    property_type_id = fields.Many2one("estate.property.type", string="Property Type")
     salesperson_id = fields.Many2one(
         "res.users", default=lambda self: self.env.user, string="Salesman"
     )
     buyer_id = fields.Many2one("res.partner", copy=False)
     tag_ids = fields.Many2many("estate.property.tag", string="Tags")
     offer_ids = fields.One2many("estate.property.offer", "property_id", string="Offers")
+
+    # Computed
+    total_area = fields.Integer(compute="_compute_total_area", readonly=True)
+    best_price = fields.Float(compute="_compute_best_price", string="Best Offer")
+
+    # ---------------------------------------- Compute methods ------------------------------------
+    @api.depends("living_area", "garden_area")
+    def _compute_total_area(self):
+        for record in self:
+            record.total_area = record.living_area + record.garden_area
+
+    @api.depends("offer_ids.price")
+    def _compute_best_price(self):
+        for record in self:
+            record.best_price = max(record.offer_ids.mapped("price"))
