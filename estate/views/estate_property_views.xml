@@ -12,6 +12,9 @@
                     </h1>
                     <group>
                         <group>
+                            <field name="property_type_id" placeholder="Type"/>
+                        </group>
+                        <group>
                             <field name="postcode" />
                         </group>
                         <group>
@@ -70,6 +73,7 @@
                 <field name="expected_price"/>
                 <field name="selling_price"/>
                 <field name="date_availability"/>
+                <field name="property_type_id"/>
             </tree>
         </field>
     </record>
@@ -87,9 +91,11 @@
                 <field name="bedrooms"/>
                 <field name="living_area"/>
                 <field name="facades"/>
+                <field name="property_type_id"/>
                 <filter string="Available" name="available" domain="['|',('state', '=', 'New'),('state', '=', 'Offer_Received')]"/>
                 <group expand="1" string="Group By">
                     <filter string="Postcode" name="groupby_postcode" context="{'group_by':'postcode'}"/>
+                    <filter string="Property Type" name="groupby_property_type" context="{'group_by':'property_type_id'}"/>
                 </group>
             </search>
         </field>
@@ -100,6 +106,11 @@
     <record id="estate_property_action" model="ir.actions.act_window">
         <field name="name">Properties</field>
         <field name="res_model">estate.property</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <record id="estate_property_type_action" model="ir.actions.act_window">
+        <field name="name">Property Types</field>
+        <field name="res_model">estate.property.type</field>
         <field name="view_mode">tree,form</field>
     </record>
 </odoo>
