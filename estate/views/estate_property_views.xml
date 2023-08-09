@@ -6,29 +6,36 @@
         <field name="model">estate.property</field>
         <field name="arch" type="xml">
             <form string="Estate Property">
+                <header>
+                    <button name="action_set_state_cancel" string="Cancel" type="object"/>
+                    <button name="action_set_state_sold" string="Sold" type="object"/>
+                </header>
                 <sheet>
                     <h1 class="form-title">
-                        <field name="name" />
+                        <field name="name"/>
                     </h1>
-                    <field name="tag_ids" widget="many2many_tags" class="form-tags" />
+                    <field name="tag_ids" widget="many2many_tags" class="form-tags"/>
                     <group>
+                        <group>
+                            <field name="state"/>
+                        </group>
                         <group>
                             <field name="property_type_id" placeholder="Type"/>
                         </group>
                         <group>
-                            <field name="postcode" />
+                            <field name="postcode"/>
                         </group>
                         <group>
-                            <field name="best_price" />
+                            <field name="best_price"/>
                         </group>
                         <group>
-                            <field name="expected_price" />
+                            <field name="expected_price"/>
                         </group>
                         <group>
-                            <field name="date_availability" />
+                            <field name="date_availability"/>
                         </group>
                         <group>
-                            <field name="selling_price" />
+                            <field name="selling_price"/>
                         </group>
                     </group>
                     <notebook>
@@ -85,13 +92,19 @@
                 <sheet>
                     <group>
                         <group>
-                            <field name="price" />
+                            <field name="price"/>
                         </group>
                         <group>
-                            <field name="partner_id" />
+                            <field name="partner_id"/>
                         </group>
                         <group>
-                            <field name="status" />
+                            <field name="validity"/>
+                        </group>
+                        <group>
+                            <field name="date_deadline"/>
+                        </group>
+                        <group>
+                            <field name="status"/>
                         </group>
                     </group>
                 </sheet>
@@ -126,6 +139,10 @@
             <tree string="Estate Property Offer">
                 <field name="price"/>
                 <field name="partner_id"/>
+                <field name="validity"/>
+                <field name="date_deadline"/>
+                <button name="action_set_status_accepted" type="object" icon="fa-check"/>
+                <button name="action_set_status_refused" type="object" icon="fa-times"/>
                 <field name="status"/>
             </tree>
         </field>
@@ -145,10 +162,12 @@
                 <field name="living_area"/>
                 <field name="facades"/>
                 <field name="property_type_id"/>
-                <filter string="Available" name="available" domain="['|',('state', '=', 'New'),('state', '=', 'Offer_Received')]"/>
+                <filter string="Available" name="available"
+                        domain="['|',('state', '=', 'New'),('state', '=', 'Offer_Received')]"/>
                 <group expand="1" string="Group By">
                     <filter string="Postcode" name="groupby_postcode" context="{'group_by':'postcode'}"/>
-                    <filter string="Property Type" name="groupby_property_type" context="{'group_by':'property_type_id'}"/>
+                    <filter string="Property Type" name="groupby_property_type"
+                            context="{'group_by':'property_type_id'}"/>
                 </group>
             </search>
         </field>

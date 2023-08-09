@@ -1,8 +1,7 @@
 from datetime import datetime
-
 from dateutil.relativedelta import relativedelta
-
 from odoo import api, fields, models
+from odoo.exceptions import UserError
 
 
 class EstateProperty(models.Model):
@@ -17,6 +16,12 @@ class EstateProperty(models.Model):
         "Available From", copy=False, default=datetime.today() + relativedelta(months=3)
     )
     expected_price = fields.Float(required=True)
+
+    _sql_constraints = [
+        ('check_positive', 'CHECK(expected_price >= 0)',
+         'The expected price must be strictly positive')
+    ]
+
     selling_price = fields.Float(readonly=True, copy=False)
     bedrooms = fields.Integer(default=2)
     living_area = fields.Integer("Living Area (sqm)")
@@ -46,8 +51,9 @@ class EstateProperty(models.Model):
         required=True,
         copy=False,
         default="New",
+        string="Status"
     )
-    active = fields.Boolean(default=False)
+    active = fields.Boolean(default=True)
 
     # Relational
     property_type_id = fields.Many2one("estate.property.type", string="Property Type")
@@ -71,4 +77,32 @@ class EstateProperty(models.Model):
     @api.depends("offer_ids.price")
     def _compute_best_price(self):
         for record in self:
-            record.best_price = max(record.offer_ids.mapped("price"))
+            if record.offer_ids.mapped("price"):
+                record.best_price = max(record.offer_ids.mapped("price"))
+            else:
+                record.best_price = None
+
+    @api.onchange('garden')
+    def _onchange_garden(self):
+        if self.garden:
+            self.garden_area = 10
+            self.garden_orientation = "North"
+        else:
+            self.garden_area = 0
+            self.garden_orientation = None
+
+    def action_set_state_cancel(self):
+        for record in self:
+            if record.state == "Sold":
+                raise UserError("A sold property cannot be canceled")
+            else:
+                record.state = "Canceled"
+        return True
+
+    def action_set_state_sold(self):
+        for record in self:
+            if record.state == "Canceled":
+                raise UserError("A canceled property cannot be set as sold")
+            else:
+                record.state = "Sold"
+        return True
