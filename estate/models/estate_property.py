@@ -1,12 +1,14 @@
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from odoo import api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
+from odoo.tools.float_utils import float_compare, float_is_zero
 
 
 class EstateProperty(models.Model):
     _name = "estate.property"
     _description = "The properties for an estate"
+    _order = "id desc"
 
     # Basic
     name = fields.Char("Title", required=True)
@@ -91,6 +93,8 @@ class EstateProperty(models.Model):
             self.garden_area = 0
             self.garden_orientation = None
 
+    # ---------------------------------------- Action methods ------------------------------------
+
     def action_set_state_cancel(self):
         for record in self:
             if record.state == "Sold":
@@ -106,3 +110,15 @@ class EstateProperty(models.Model):
             else:
                 record.state = "Sold"
         return True
+
+    # ---------------------------------------- Constraints methods ------------------------------------
+
+    @api.constrains('selling_price', 'expected_price')
+    def _check_selling_price(self):
+        for record in self:
+            if (not float_is_zero(record.selling_price, precision_rounding=0.01)
+                    and float_compare(record.selling_price, record.expected_price * 90.0 / 100.0,
+                                      precision_rounding=0.01) < 0):
+                raise ValidationError(
+                    "selling price cannot be lower than 90% of the expected price. "
+                    + "reduce the expected price if you want to accept this offer")
