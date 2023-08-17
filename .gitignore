@@ -1,6 +1,10 @@
 # sphinx build directories
 _build/
 
+# extra module folder
+om_hr_payroll
+om_hr_payroll_account
+
 # dotfiles
 .*
 !.gitignore

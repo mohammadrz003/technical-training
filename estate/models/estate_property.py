@@ -19,12 +19,21 @@ class EstateProperty(models.Model):
     )
     expected_price = fields.Float(required=True)
 
+    selling_price = fields.Float(readonly=True, copy=False)
+
     _sql_constraints = [
-        ('check_positive', 'CHECK(expected_price >= 0)',
-         'The expected price must be strictly positive')
+        (
+            "check_positive",
+            "CHECK(expected_price >= 0)",
+            "The expected price must be strictly positive",
+        ),
+        (
+            "check_positive_selling_price",
+            "CHECK(selling_price >= 0)",
+            "The selling price must be positive",
+        ),
     ]
 
-    selling_price = fields.Float(readonly=True, copy=False)
     bedrooms = fields.Integer(default=2)
     living_area = fields.Integer("Living Area (sqm)")
     facades = fields.Integer()
@@ -53,7 +62,7 @@ class EstateProperty(models.Model):
         required=True,
         copy=False,
         default="New",
-        string="Status"
+        string="Status",
     )
     active = fields.Boolean(default=True)
 
@@ -84,7 +93,7 @@ class EstateProperty(models.Model):
             else:
                 record.best_price = None
 
-    @api.onchange('garden')
+    @api.onchange("garden")
     def _onchange_garden(self):
         if self.garden:
             self.garden_area = 10
@@ -92,6 +101,13 @@ class EstateProperty(models.Model):
         else:
             self.garden_area = 0
             self.garden_orientation = None
+
+    # ------------------------------------------ CRUD Methods -------------------------------------
+
+    def unlink(self):
+        if self.state not in ["New", "Canceled"]:
+            raise UserError("Your property must be new or canceled so that you can delete it")
+        return super().unlink()
 
     # ---------------------------------------- Action methods ------------------------------------
 
@@ -113,12 +129,18 @@ class EstateProperty(models.Model):
 
     # ---------------------------------------- Constraints methods ------------------------------------
 
-    @api.constrains('selling_price', 'expected_price')
+    @api.constrains("selling_price", "expected_price")
     def _check_selling_price(self):
         for record in self:
             if (not float_is_zero(record.selling_price, precision_rounding=0.01)
-                    and float_compare(record.selling_price, record.expected_price * 90.0 / 100.0,
-                                      precision_rounding=0.01) < 0):
+                    and float_compare(
+                        record.selling_price,
+                        record.expected_price * 90.0 / 100.0,
+                        precision_rounding=0.01,
+                    )
+                    < 0
+            ):
                 raise ValidationError(
                     "selling price cannot be lower than 90% of the expected price. "
-                    + "reduce the expected price if you want to accept this offer")
+                    + "reduce the expected price if you want to accept this offer"
+                )
